@@ -78,7 +78,11 @@ function finalizeTransaction(
   return { date, cleared, payee, postings, isBalanced, imbalance };
 }
 
-export function parsePTA(text: string): PTAParseResult {
+export function parsePTA(rawInput: string): PTAParseResult {
+  // Normalize non-breaking spaces (\u00a0) that browsers inject into
+  // contenteditable innerHTML — treat them as regular spaces so indentation
+  // and column separators are detected correctly.
+  const text = rawInput.replace(/\u00a0/g, ' ');
   const lines = text.split('\n');
   const transactions: PTATransaction[] = [];
   const errors: string[] = [];
@@ -102,7 +106,11 @@ export function parsePTA(text: string): PTAParseResult {
     const line = rawLine.replace(/\r$/, '');
 
     if (!line.trim()) {
-      commitTransaction();
+      // Blank lines are optional whitespace between transactions.
+      // We do NOT commit here — the commit fires when a new header or
+      // EOF is reached. This makes the parser resilient to the extra
+      // blank lines that the contenteditable HTML editor injects between
+      // every line when content is round-tripped through htmlToPlainText.
       continue;
     }
 
