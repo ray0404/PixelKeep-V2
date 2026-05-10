@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useNoteStore } from '../stores/useNoteStore';
 import { useSettingsStore } from '../stores/useSettingsStore';
@@ -7,10 +7,58 @@ import { PixelButton } from '../components/ui/PixelButton';
 import { PixelCheckbox } from '../components/ui/PixelCheckbox';
 import { PixelModal } from '../components/ui/PixelModal';
 import { PixelProgressBar } from '../components/ui/PixelProgressBar';
+import { PTASummary } from '../components/PTASummary';
 import { Note } from '../db/db';
 import { htmlToPlainText } from '../utils/ui';
+import { parsePTA, PTAParseResult } from '../utils/ptaParser';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
+
+type ContentSegment =
+  | { type: 'html'; html: string }
+  | { type: 'pta'; result: PTAParseResult };
+
+const PTA_BLOCK_RE = /```(?:ledger|pta)\n([\s\S]*?)```/g;
+
+function buildSegments(plainText: string, markdownMode: boolean): ContentSegment[] {
+  if (!markdownMode) {
+    return [{ type: 'html', html: plainText }];
+  }
+
+  const segments: ContentSegment[] = [];
+  let lastIndex = 0;
+  PTA_BLOCK_RE.lastIndex = 0;
+
+  let match: RegExpExecArray | null;
+  while ((match = PTA_BLOCK_RE.exec(plainText)) !== null) {
+    if (match.index > lastIndex) {
+      const chunk = plainText.slice(lastIndex, match.index);
+      const html = DOMPurify.sanitize(
+        marked.parse(chunk, { breaks: true, gfm: true }) as string
+      );
+      segments.push({ type: 'html', html });
+    }
+    segments.push({ type: 'pta', result: parsePTA(match[1]) });
+    lastIndex = match.index + match[0].length;
+  }
+
+  if (lastIndex < plainText.length) {
+    const chunk = plainText.slice(lastIndex);
+    const html = DOMPurify.sanitize(
+      marked.parse(chunk, { breaks: true, gfm: true }) as string
+    );
+    segments.push({ type: 'html', html });
+  }
+
+  return segments.length > 0
+    ? segments
+    : [{
+        type: 'html',
+        html: DOMPurify.sanitize(
+          marked.parse(plainText, { breaks: true, gfm: true }) as string
+        )
+      }];
+}
 
 export const NoteDetails: React.FC = () => {
   const { id } = useParams();
@@ -49,7 +97,6 @@ export const NoteDetails: React.FC = () => {
     };
   }, [id, notes, getAsset]);
 
-  // Handle completion (Appending text)
   useEffect(() => {
     if (lastResult && !isTranscribing && note && activeNoteId === note.id && step === 'complete') {
         const decipheredText = `\n\n--- DECIPHERED ECHO ---\n${lastResult}`;
@@ -57,16 +104,24 @@ export const NoteDetails: React.FC = () => {
             useNoteStore.getState().updateNote(note.id, {
                 content: note.content + decipheredText
             });
-            resetTranscription(); // Reset after successful append
+            resetTranscription();
         }
     }
   }, [lastResult, isTranscribing, note, activeNoteId, step]);
+
+  const segments = useMemo(() => {
+    if (!note) return [];
+    const plainText = note.isMarkdownMode
+      ? htmlToPlainText(note.content)
+      : note.content;
+    return buildSegments(plainText, !!note.isMarkdownMode);
+  }, [note?.content, note?.isMarkdownMode]);
 
   if (!note) return <div className="p-4 text-center">Note not found.</div>;
 
   const handleCopy = async () => {
     const content = htmlToPlainText(note.content);
-    const plainText = settings.includeTitleInCopy ? `${note.title}\n\n${content}` : content; 
+    const plainText = settings.includeTitleInCopy ? `${note.title}\n\n${content}` : content;
     try {
       await navigator.clipboard.writeText(plainText);
       alert('Copied to clipboard!');
@@ -97,7 +152,6 @@ export const NoteDetails: React.FC = () => {
 
   const startDeciphering = () => {
     if (resolvedAudioBlob && note) {
-        // Don't reset if we are just switching views, but here we are starting NEW
         resetTranscription();
         transcribe(resolvedAudioBlob, note.id);
     }
@@ -123,9 +177,9 @@ export const NoteDetails: React.FC = () => {
              {settings.enableMarkdownFeature && (
                <div className="flex items-center gap-2 mr-2">
                  <span className="text-[10px] uppercase text-text-meta">MD</span>
-                 <PixelCheckbox 
-                   checked={!!note.isMarkdownMode} 
-                   onChange={(e) => handleToggleMarkdown(e.target.checked)} 
+                 <PixelCheckbox
+                   checked={!!note.isMarkdownMode}
+                   onChange={(e) => handleToggleMarkdown(e.target.checked)}
                  />
                </div>
              )}
@@ -141,21 +195,21 @@ export const NoteDetails: React.FC = () => {
 
       {resolvedAudioUrl && (
         <div className="space-y-4">
-          <div 
+          <div
             className="flex flex-col gap-2 border-2 border-border-light bg-surface p-2 shadow-pixel-btn"
             data-testid="note-audio-player"
           >
             <span className="text-[10px] text-text-meta uppercase">Echo Stone Recording</span>
             <audio src={resolvedAudioUrl} controls className="w-full h-10" />
           </div>
-          
+
          {resolvedAudioBlob && !isCurrentNoteTranscribing && (
             <div className="relative group">
-                <PixelButton 
-                    variant="primary" 
+                <PixelButton
+                    variant="primary"
                     className="w-full h-12 text-xs gap-2"
                     onClick={handleDecipherClick}
-                    disabled={isTranscribing} // Disable if ANY transcription is running
+                    disabled={isTranscribing}
                 >
                     <span className="material-symbols-outlined">auto_fix_high</span>
                     {isTranscribing ? 'ORACLE IS BUSY...' : 'DECIPHER ECHO'}
@@ -169,8 +223,8 @@ export const NoteDetails: React.FC = () => {
                     <span className="text-[10px] font-bold text-primary">DECIPHERING ECHO...</span>
                     <span className="text-[10px] text-text-light/70 animate-pulse">Running in background</span>
                  </div>
-                 <PixelProgressBar 
-                    progress={progress} 
+                 <PixelProgressBar
+                    progress={progress}
                     label={status}
                     color="secondary"
                  />
@@ -182,22 +236,21 @@ export const NoteDetails: React.FC = () => {
         </div>
       )}
 
-      <div 
-        className={`note-content-display mb-6 text-xs font-normal whitespace-pre-wrap break-words ${note.isMarkdownMode ? 'markdown-body' : ''}`}
+      <div
+        className={`note-content-display mb-6 text-xs font-normal break-words ${note.isMarkdownMode ? 'markdown-body' : 'whitespace-pre-wrap'}`}
         style={{ color: settings.terminalTextColor || settings.textColor }}
-        dangerouslySetInnerHTML={{ 
-            __html: DOMPurify.sanitize(
-                note.isMarkdownMode 
-                    ? (marked.parse(htmlToPlainText(note.content), { breaks: true, gfm: true }) as string) 
-                    : note.content
-            ) 
-        }}
-      />
+      >
+        {segments.map((seg, i) =>
+          seg.type === 'pta'
+            ? <PTASummary key={i} result={seg.result} />
+            : <div key={i} dangerouslySetInnerHTML={{ __html: seg.html }} />
+        )}
+      </div>
 
       <div className="flex flex-wrap gap-2">
         {note.tags.map(tag => (
-          <span 
-            key={tag} 
+          <span
+            key={tag}
             onClick={() => handleTagClick(tag)}
             className="border-2 border-border-light bg-surface px-3 py-1 text-[10px] font-medium text-primary shadow-pixel-btn cursor-pointer hover:bg-primary/10 transition-colors"
           >
