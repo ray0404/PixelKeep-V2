@@ -9,3 +9,5 @@ font_Exo.html
 conductor/
 .gemini/
 /firebase.json
+.agents/
+attached_assets/
