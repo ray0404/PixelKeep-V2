@@ -11,3 +11,6 @@ conductor/
 /firebase.json
 .agents/
 attached_assets/
+
+# Isolated Dev Dash
+.user/

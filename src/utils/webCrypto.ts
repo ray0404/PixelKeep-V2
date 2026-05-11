@@ -17,7 +17,7 @@ async function getKey(password: string, salt: Uint8Array): Promise<CryptoKey> {
       salt: salt,
       iterations: 100000,
       hash: "SHA-256",
-    },
+    } as Pbkdf2Params,
     keyMaterial,
     { name: "AES-GCM", length: 256 },
     true,
@@ -43,8 +43,8 @@ export async function encryptWebCrypto(data: any, password: string): Promise<{ c
   );
 
   // Convert to Base64 for storage
-  const bufferToBase64 = (buffer: ArrayBuffer) => {
-      const bytes = new Uint8Array(buffer);
+  const bufferToBase64 = (buffer: ArrayBuffer | ArrayBufferView) => {
+      const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer as ArrayBuffer);
       let binary = '';
       for (let i = 0; i < bytes.byteLength; i++) {
           binary += String.fromCharCode(bytes[i]);
@@ -69,7 +69,7 @@ export async function decryptWebCrypto(cipher: string, saltStr: string, ivStr: s
           for (let i = 0; i < len; i++) {
               bytes[i] = binary_string.charCodeAt(i);
           }
-          return bytes.buffer;
+          return bytes.buffer as ArrayBuffer;
       };
 
       const salt = new Uint8Array(base64ToBuffer(saltStr));
