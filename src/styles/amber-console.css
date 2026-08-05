@@ -1,0 +1,208 @@
+/* Amber Console CSS Framework for PixelKeep V2 */
+
+:root,
+[data-ac-gas="neon"] {
+  --screen: #100600;
+  --screen-raised: #1b0c02;
+  --screen-well: #060200;
+
+  --amber-100: #ffa86d;
+  --amber-90: #ff6b08;
+  --amber-70: #dd5800;
+  --amber-50: #ab4500;
+  --amber-30: #5b2500;
+  --on-fill: #1e0c00;
+
+  --gas-1: 255, 168, 109;
+  --gas-2: 255, 107, 8;
+  --gas-3: 221, 88, 0;
+  --gas-4: 171, 69, 0;
+
+  --ink: var(--amber-90);
+  --ink-bright: var(--amber-100);
+  --ink-dim: var(--amber-70);
+  --ink-faint: var(--amber-50);
+  --ink-trace: var(--amber-30);
+
+  --fill: var(--amber-90);
+  --fill-bright: var(--amber-100);
+
+  --stroke: var(--amber-90);
+  --stroke-dim: var(--amber-70);
+
+  --font-terminal: "VT323", ui-monospace, monospace;
+  --font-micro: "Silkscreen", "VT323", monospace;
+
+  --glow-text: 0 0 4px rgba(var(--gas-2), 0.6), 0 0 12px rgba(var(--gas-3), 0.4);
+  --glow-box: 0 0 6px rgba(var(--gas-2), 0.4), inset 0 0 4px rgba(var(--gas-3), 0.3);
+
+  --ac-mesh-pitch: 3px;
+  --ac-mesh-wire: 0.075;
+}
+
+[data-ac-gas="amber"] {
+  --screen: #0d0700;
+  --screen-raised: #170e02;
+  --screen-well: #060200;
+
+  --amber-100: #ffd052;
+  --amber-90: #ffae1e;
+  --amber-70: #cd8817;
+  --amber-50: #8d5b10;
+  --amber-30: #4a2f08;
+  --on-fill: #1a0e00;
+
+  --gas-1: 255, 208, 82;
+  --gas-2: 255, 174, 30;
+  --gas-3: 205, 136, 23;
+  --gas-4: 141, 91, 16;
+
+  --glow-text: 0 0 4px rgba(var(--gas-2), 0.6), 0 0 12px rgba(var(--gas-3), 0.4);
+  --glow-box: 0 0 6px rgba(var(--gas-2), 0.4), inset 0 0 4px rgba(var(--gas-3), 0.3);
+}
+
+/* Framework Base Structures */
+.ac-screen {
+  background-color: var(--screen);
+  color: var(--ink);
+  font-family: var(--font-terminal);
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.ac-panel {
+  background-color: var(--screen);
+  border: 2px solid var(--stroke);
+  position: relative;
+  padding: 1rem;
+  box-shadow: var(--glow-box);
+}
+
+.ac-panel__title {
+  position: absolute;
+  top: -0.75rem;
+  left: 0.75rem;
+  background-color: var(--screen);
+  padding: 0 0.5rem;
+  font-family: var(--font-micro);
+  font-size: 10px;
+  color: var(--ink-bright);
+  text-transform: uppercase;
+  border: 1px solid var(--stroke-dim);
+}
+
+.ac-statusbar {
+  background-color: var(--fill);
+  color: var(--on-fill);
+  font-family: var(--font-terminal);
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+  text-transform: uppercase;
+}
+
+.ac-btn {
+  background-color: transparent;
+  color: var(--ink-bright);
+  border: 2px solid var(--stroke);
+  font-family: var(--font-terminal);
+  font-size: 1.1rem;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background-color 0.1s, color 0.1s;
+}
+
+.ac-btn:hover {
+  background-color: var(--fill-bright);
+  color: var(--on-fill);
+  box-shadow: var(--glow-text);
+}
+
+.ac-btn--filled {
+  background-color: var(--fill);
+  color: var(--on-fill);
+}
+
+.ac-btn--filled:hover {
+  background-color: var(--fill-bright);
+}
+
+.ac-input {
+  background-color: var(--screen-well);
+  color: var(--ink-bright);
+  border: 2px solid var(--stroke-dim);
+  font-family: var(--font-terminal);
+  font-size: 1.1rem;
+  padding: 0.4rem 0.75rem;
+  outline: none;
+}
+
+.ac-input:focus {
+  border-color: var(--stroke);
+  box-shadow: var(--glow-box);
+}
+
+.ac-badge {
+  display: inline-block;
+  font-family: var(--font-micro);
+  font-size: 8px;
+  padding: 2px 6px;
+  border: 1px solid var(--stroke);
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.ac-badge--filled {
+  background-color: var(--fill);
+  color: var(--on-fill);
+}
+
+/* Simulations & Effects */
+.ac-bloom {
+  text-shadow: var(--glow-text);
+}
+
+.ac-bloom .ac-mesh {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background-image: 
+    linear-gradient(to right, rgba(var(--gas-2), var(--ac-mesh-wire)) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(var(--gas-2), var(--ac-mesh-wire)) 1px, transparent 1px);
+  background-size: var(--ac-mesh-pitch) var(--ac-mesh-pitch);
+  opacity: 0.7;
+}
+
+.ac-crt .ac-retrace {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  background-size: 100% 3px, 6px 100%;
+  animation: ac-flicker 0.15s infinite;
+}
+
+.ac-afterglow .ac-persist {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes ac-flicker {
+  0% { opacity: 0.97; }
+  50% { opacity: 1; }
+  100% { opacity: 0.98; }
+}
+
+.ac-blink {
+  animation: ac-blink-anim 1.1s steps(1) infinite;
+}
+
+@keyframes ac-blink-anim {
+  50% { opacity: 0; }
+}

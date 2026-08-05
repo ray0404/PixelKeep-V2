@@ -21,6 +21,34 @@ describe('parsePTA', () => {
     expect(result.errors).toHaveLength(0);
   });
 
+  it('supports explicit negative amounts with sign after dollar symbol', () => {
+    const text = `
+2024-01-15 * Gas
+    expenses:gas             $20.00
+    assets:cashapp:checking  $-20.00
+`.trim();
+    const result = parsePTA(text);
+    expect(result.errors).toHaveLength(0);
+    expect(result.transactions).toHaveLength(1);
+    const tx = result.transactions[0];
+    expect(tx.isBalanced).toBe(true);
+    expect(tx.postings[1].amount).toBeCloseTo(-20.00);
+  });
+
+  it('supports explicit negative amounts with sign before dollar symbol', () => {
+    const text = `
+2024-01-15 * Gas
+    expenses:gas             $20.00
+    assets:cashapp:checking  -$20.00
+`.trim();
+    const result = parsePTA(text);
+    expect(result.errors).toHaveLength(0);
+    expect(result.transactions).toHaveLength(1);
+    const tx = result.transactions[0];
+    expect(tx.isBalanced).toBe(true);
+    expect(tx.postings[1].amount).toBeCloseTo(-20.00);
+  });
+
   it('auto-balances a posting with no amount', () => {
     const text = `
 2024-01-20 Salary

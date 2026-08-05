@@ -28,9 +28,9 @@ export interface PTAParseResult {
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TX_HEADER_RE = /^(\d{4}-\d{2}-\d{2})\s*([*!])?\s*(?:txn\s+)?(.*)$/;
-const POSTING_RE = /^(\s+)(\S[^;]*?)(?:\s{2,}|\t)([+-]?\$?[\d,]+(?:,\d{3})*\.?\d*)\s*([A-Z]{2,4})?\s*(?:;.*)?$/;
+const POSTING_RE = /^(\s+)(\S[^;]*?)(?:\s{2,}|\t)([+-]?\$?[+-]?[\d,]+(?:,\d{3})*\.?\d*)\s*([A-Z]{2,4})?\s*(?:;.*)?$/;
 const POSTING_ACCOUNT_ONLY_RE = /^(\s+)(\S[^;]*?)\s*(?:;.*)?$/;
-const AMOUNT_INLINE_RE = /[+-]?\$?[\d,]+(?:,\d{3})*\.?\d*/;
+const AMOUNT_INLINE_RE = /[+-]?\$?[+-]?[\d,]+(?:,\d{3})*\.?\d*/;
 
 function parseAmount(raw: string): number {
   const clean = raw.replace(/\$/, '').replace(/,/g, '');

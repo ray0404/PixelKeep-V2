@@ -6,7 +6,7 @@ import { PixelButton } from '../components/ui/PixelButton';
 export const Settings: React.FC = () => {
   const settings = useSettingsStore();
 
-  const themes = ['Standard', 'Pixel'];
+  const themes = ['Standard', 'Pixel', 'AmberConsole'];
   const fonts = [
     { name: 'Pixel (Default)', value: 'font-display' },
     { name: 'System Sans', value: 'font-sans' },
@@ -49,9 +49,49 @@ export const Settings: React.FC = () => {
               value={settings.theme}
               onChange={(e) => settings.setTheme(e.target.value as any)}
             >
-              {themes.map(t => <option key={t} value={t}>{t}</option>)}
+              {themes.map(t => <option key={t} value={t}>{t === 'AmberConsole' ? 'Amber Console' : t}</option>)}
             </select>
           </div>
+
+          {settings.theme === 'AmberConsole' && (
+            <div className="p-3 border-2 border-primary/40 bg-black/40 space-y-3">
+              <div className="text-[10px] font-bold text-primary uppercase border-b border-primary/30 pb-1">
+                Amber Console Configuration
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-text-light uppercase">Gas Discharge Palette</span>
+                <select
+                  className="h-9 w-40 border border-primary bg-black text-primary text-[10px] px-2"
+                  value={settings.amberGas}
+                  onChange={(e) => settings.setSetting('amberGas', e.target.value as any)}
+                >
+                  <option value="neon">NEON 24° (AC Plasma)</option>
+                  <option value="amber">AMBER 38° (CRT Phosphor)</option>
+                </select>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-text-light uppercase">Plasma Bloom & Matrix</span>
+                <PixelCheckbox
+                  checked={settings.amberBloom}
+                  onChange={(e) => settings.setSetting('amberBloom', e.target.checked)}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-text-light uppercase">CRT Scanlines & Flicker</span>
+                <PixelCheckbox
+                  checked={settings.amberCrt}
+                  onChange={(e) => settings.setSetting('amberCrt', e.target.checked)}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-text-light uppercase">Persistence Afterglow</span>
+                <PixelCheckbox
+                  checked={settings.amberAfterglow}
+                  onChange={(e) => settings.setSetting('amberAfterglow', e.target.checked)}
+                />
+              </div>
+            </div>
+          )}
           
           <div className="flex items-center justify-between">
             <span className="text-xs text-text-light uppercase">Font</span>

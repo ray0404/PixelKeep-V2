@@ -194,3 +194,259 @@ body.compact-mode .nav-button {
 .animate-magical-glow {
   animation: magical-glow 2s infinite ease-in-out;
 }
+
+/* Amber Console Theme Overrides */
+body.theme-amber-console {
+  background-color: var(--screen) !important;
+  background-image: none !important;
+  color: var(--ink) !important;
+  font-family: var(--font-terminal) !important;
+}
+
+body.theme-amber-console *,
+body.theme-amber-console input,
+body.theme-amber-console textarea,
+body.theme-amber-console button,
+body.theme-amber-console select {
+  font-family: var(--font-terminal) !important;
+}
+
+/* FIX: Preserve Material Symbols font for icons in Amber Console mode */
+body.theme-amber-console .material-symbols-outlined {
+  font-family: 'Material Symbols Outlined' !important;
+  font-weight: normal !important;
+  font-style: normal !important;
+  line-height: 1 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  word-wrap: normal !important;
+  white-space: nowrap !important;
+  direction: ltr !important;
+}
+
+/* Header & Top Bar */
+body.theme-amber-console header {
+  background-color: var(--screen) !important;
+  border-bottom: 2px solid var(--stroke) !important;
+  color: var(--ink-bright) !important;
+  box-shadow: var(--glow-box) !important;
+}
+
+body.theme-amber-console header h1 {
+  font-family: var(--font-terminal) !important;
+  color: var(--ink-bright) !important;
+  text-shadow: var(--glow-text) !important;
+  letter-spacing: 0.1em !important;
+}
+
+body.theme-amber-console header .pixel-button-surface {
+  border: 2px solid var(--stroke) !important;
+  background-color: var(--screen) !important;
+  color: var(--ink-bright) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 0 4px rgba(var(--gas-2), 0.4) !important;
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  min-width: 2.25rem !important;
+  padding: 0 !important;
+}
+
+body.theme-amber-console header .pixel-button-surface:hover {
+  background-color: var(--fill-bright) !important;
+  color: var(--on-fill) !important;
+  box-shadow: var(--glow-text) !important;
+}
+
+/* Buttons */
+body.theme-amber-console .pixel-button,
+body.theme-amber-console .pixel-button-secondary,
+body.theme-amber-console .pixel-button-surface {
+  border: 2px solid var(--stroke) !important;
+  background-color: var(--screen) !important;
+  color: var(--ink-bright) !important;
+  box-shadow: 0 0 4px rgba(var(--gas-2), 0.4) !important;
+  border-radius: 0 !important;
+  text-transform: uppercase;
+}
+
+body.theme-amber-console .pixel-button:hover,
+body.theme-amber-console .pixel-button-secondary:hover,
+body.theme-amber-console .pixel-button-surface:hover {
+  background-color: var(--fill-bright) !important;
+  color: var(--on-fill) !important;
+  box-shadow: var(--glow-text) !important;
+}
+
+body.theme-amber-console .pixel-button:active,
+body.theme-amber-console .pixel-button-secondary:active,
+body.theme-amber-console .pixel-button-surface:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: none !important;
+}
+
+/* Floating Action Buttons (FABs - Bottom Right 2 Circles -> Amber Terminal Action Keys) */
+body.theme-amber-console .fixed.bottom-24.right-6 {
+  z-index: 30 !important;
+}
+
+body.theme-amber-console .fixed.bottom-24 .pixel-button,
+body.theme-amber-console .fixed.bottom-24 .pixel-button-secondary {
+  border-radius: 0 !important;
+  border: 2px solid var(--stroke) !important;
+  background-color: var(--screen) !important;
+  color: var(--ink-bright) !important;
+  box-shadow: var(--glow-box) !important;
+  width: 3.25rem !important;
+  height: 3.25rem !important;
+}
+
+body.theme-amber-console .fixed.bottom-24 .pixel-button:hover,
+body.theme-amber-console .fixed.bottom-24 .pixel-button-secondary:hover {
+  background-color: var(--fill-bright) !important;
+  color: var(--on-fill) !important;
+  box-shadow: var(--glow-text) !important;
+}
+
+body.theme-amber-console .fixed.bottom-24 .pixel-button .material-symbols-outlined,
+body.theme-amber-console .fixed.bottom-24 .pixel-button-secondary .material-symbols-outlined {
+  font-size: 1.75rem !important;
+  color: inherit !important;
+}
+
+/* Search Bar & Inputs */
+body.theme-amber-console .pixel-input,
+body.theme-amber-console .pixel-textarea {
+  border: 2px solid var(--stroke-dim) !important;
+  box-shadow: inset 0 0 6px rgba(var(--gas-3), 0.3) !important;
+  background-color: var(--screen-well) !important;
+  color: var(--ink-bright) !important;
+  font-family: var(--font-terminal) !important;
+}
+
+body.theme-amber-console .pixel-input::placeholder,
+body.theme-amber-console .pixel-textarea::placeholder {
+  color: var(--ink-faint) !important;
+  opacity: 0.7 !important;
+}
+
+body.theme-amber-console .pixel-input:focus,
+body.theme-amber-console .pixel-textarea:focus {
+  border-color: var(--stroke) !important;
+  box-shadow: var(--glow-box) !important;
+}
+
+body.theme-amber-console div:has(> .pixel-input) .material-symbols-outlined {
+  color: var(--ink-bright) !important;
+  text-shadow: var(--glow-text) !important;
+}
+
+/* Empty State Container */
+body.theme-amber-console .border-dashed {
+  border: 2px dashed var(--stroke-dim) !important;
+  background-color: var(--screen-well) !important;
+  color: var(--ink) !important;
+  box-shadow: inset 0 0 8px rgba(var(--gas-3), 0.2) !important;
+}
+
+body.theme-amber-console .border-dashed .material-symbols-outlined {
+  color: var(--ink-bright) !important;
+  text-shadow: var(--glow-text) !important;
+}
+
+body.theme-amber-console .border-dashed h3,
+body.theme-amber-console .border-dashed p {
+  color: var(--ink) !important;
+  font-family: var(--font-terminal) !important;
+}
+
+/* Bottom Navigation Bar (Pixel Keep & Quest Log tabs) */
+body.theme-amber-console nav.fixed.bottom-0 {
+  background-color: var(--screen) !important;
+  border-top: 2px solid var(--stroke) !important;
+  box-shadow: 0 -2px 10px rgba(var(--gas-2), 0.2) !important;
+  height: 4.5rem !important;
+}
+
+body.theme-amber-console nav.fixed.bottom-0 button {
+  color: var(--ink-dim) !important;
+  border: 1px solid transparent !important;
+  border-radius: 0 !important;
+  padding: 0.25rem 0.75rem !important;
+}
+
+body.theme-amber-console nav.fixed.bottom-0 button.text-primary {
+  color: var(--on-fill) !important;
+  background-color: var(--fill) !important;
+  border: 1px solid var(--stroke) !important;
+  box-shadow: var(--glow-text) !important;
+}
+
+body.theme-amber-console nav.fixed.bottom-0 button.text-primary .material-symbols-outlined {
+  color: var(--on-fill) !important;
+}
+
+body.theme-amber-console nav.fixed.bottom-0 button span.text-\[10px\] {
+  font-family: var(--font-micro) !important;
+  font-size: 9px !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Cards & Containers */
+body.theme-amber-console .bg-surface {
+  background-color: var(--screen) !important;
+  border-color: var(--stroke) !important;
+  color: var(--ink) !important;
+}
+
+body.theme-amber-console .shadow-pixel-container {
+  box-shadow: var(--glow-box) !important;
+  border: 2px solid var(--stroke) !important;
+  background-color: var(--screen) !important;
+}
+
+body.theme-amber-console .border-border-light,
+body.theme-amber-console .border-border-dark {
+  border-color: var(--stroke-dim) !important;
+}
+
+body.theme-amber-console .text-primary {
+  color: var(--ink-bright) !important;
+}
+
+body.theme-amber-console .text-secondary {
+  color: var(--ink) !important;
+}
+
+body.theme-amber-console .text-text-light {
+  color: var(--ink) !important;
+}
+
+body.theme-amber-console .bg-primary {
+  background-color: var(--fill) !important;
+  color: var(--on-fill) !important;
+}
+
+body.theme-amber-console .text-shadow-pixel {
+  text-shadow: var(--glow-text) !important;
+}
+
+/* Modal styling in Amber Console mode */
+body.theme-amber-console .fixed.inset-0.bg-background-dark\/80 {
+  background-color: rgba(0, 0, 0, 0.85) !important;
+}
+
+body.theme-amber-console .max-w-md.w-full {
+  background-color: var(--screen) !important;
+  border: 2px solid var(--stroke) !important;
+  box-shadow: var(--glow-box) !important;
+  color: var(--ink) !important;
+}
+
+/* Sidebar styling in Amber Console mode */
+body.theme-amber-console aside,
+body.theme-amber-console .fixed.inset-y-0.left-0 {
+  background-color: var(--screen) !important;
+  border-right: 2px solid var(--stroke) !important;
+  box-shadow: var(--glow-box) !important;
+  color: var(--ink) !important;
+}

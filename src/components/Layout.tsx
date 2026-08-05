@@ -9,6 +9,8 @@ import { exportData, importData, ExportFormat } from '../utils/backup';
 import { PixelModal } from './ui/PixelModal';
 import { PixelToast } from './ui/PixelToast';
 
+import { useSettingsStore } from '../stores/useSettingsStore';
+
 interface LayoutProps {
   children: React.ReactNode;
   title: string;
@@ -18,8 +20,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, title }) => {
   const { toggleSidebar } = useUIStore();
   const { password } = useAuthStore();
   const { currentFolderId, setCurrentFolderId, nodes } = useFolderStore();
+  const settings = useSettingsStore();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const isAmber = settings.theme === 'AmberConsole';
 
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
@@ -68,7 +73,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, title }) => {
   };
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col text-text-light antialiased">
+    <div className={`relative flex min-h-screen w-full flex-col text-text-light antialiased ${isAmber ? `ac-screen ${settings.amberBloom ? 'ac-bloom' : ''} ${settings.amberCrt ? 'ac-crt' : ''} ${settings.amberAfterglow ? 'ac-afterglow' : ''}` : ''}`}>
+      {isAmber && settings.amberBloom && <span className="ac-mesh" />}
+      {isAmber && settings.amberCrt && <span className="ac-retrace" />}
+      {isAmber && settings.amberAfterglow && <span className="ac-persist" />}
       <Sidebar />
 
       <header className="sticky top-0 z-10 flex items-center justify-between border-b-4 border-border-dark bg-surface p-4 pb-3 shadow-pixel-container">

@@ -14,6 +14,8 @@ import { useSettingsStore } from './stores/useSettingsStore';
 import { AlarmManager } from './components/AlarmManager';
 import { requestPersistentStorage } from './utils/storage';
 
+import './styles/amber-console.css';
+
 /**
  * Main application content logic.
  * Wraps routes and authentication checks inside the Router context.
@@ -59,11 +61,15 @@ function App() {
 
   useEffect(() => {
     // Apply theme
+    document.body.classList.remove('theme-pixel', 'theme-amber-console');
     if (settings.theme === 'Pixel') {
       document.body.classList.add('theme-pixel');
-    } else {
-      document.body.classList.remove('theme-pixel');
+    } else if (settings.theme === 'AmberConsole') {
+      document.body.classList.add('theme-amber-console');
     }
+
+    // Set gas attribute for Amber Console
+    document.documentElement.setAttribute('data-ac-gas', settings.amberGas || 'neon');
 
     // Apply background
     const bgClasses = [
