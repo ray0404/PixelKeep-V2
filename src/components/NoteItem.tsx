@@ -28,20 +28,38 @@ export const NoteItem: React.FC<NoteItemProps> = ({
   const { isTranscribing, activeNoteId } = useTranscriptionStore();
   const isProcessing = isTranscribing && activeNoteId === note.id;
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const startPosRef = useRef<{ x: number; y: number } | null>(null);
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
     const content = htmlToPlainText(note.content);
     const plainText = settings.includeTitleInCopy ? `${note.title}\n\n${content}` : content;
     navigator.clipboard.writeText(plainText).then(() => {
-      // Optional: Toast or alert
       alert('Copied to clipboard');
     }).catch(err => console.error('Copy failed', err));
   };
-  const handleStart = () => {
+
+  const handleStart = (e: React.TouchEvent | React.MouseEvent) => {
+    if ('touches' in e && e.touches.length > 0) {
+      startPosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    } else if ('clientX' in e) {
+      startPosRef.current = { x: (e as React.MouseEvent).clientX, y: (e as React.MouseEvent).clientY };
+    }
     timerRef.current = setTimeout(() => {
       if (onLongPress) onLongPress(note.id);
+      timerRef.current = null;
     }, 500); // 500ms long press
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (timerRef.current && startPosRef.current && e.touches.length > 0) {
+      const deltaX = Math.abs(e.touches[0].clientX - startPosRef.current.x);
+      const deltaY = Math.abs(e.touches[0].clientY - startPosRef.current.y);
+      if (deltaX > 8 || deltaY > 8) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    }
   };
 
   const handleEnd = () => {
@@ -49,13 +67,16 @@ export const NoteItem: React.FC<NoteItemProps> = ({
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
+    startPosRef.current = null;
   };
 
   return (
     <div 
       className={`flex flex-col gap-3 border-2 border-border-light bg-surface p-3 shadow-pixel-container ${selected ? 'bg-primary/10 border-primary' : ''}`}
       onTouchStart={handleStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleEnd}
+      onTouchCancel={handleEnd}
       onMouseDown={handleStart}
       onMouseUp={handleEnd}
       onMouseLeave={handleEnd}

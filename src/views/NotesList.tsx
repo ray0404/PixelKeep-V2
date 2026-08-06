@@ -78,7 +78,7 @@ export const NotesList: React.FC = () => {
     useSensor(TouchSensor, {
       activationConstraint: {
         delay: 250,
-        tolerance: 5,
+        tolerance: 10,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -189,15 +189,29 @@ export const NotesList: React.FC = () => {
         // Reorder at same level
         const destinationParentId = overNode.parentId;
         const siblings = nodes.filter(n => n.parentId === destinationParentId && (n.type === 'note' || n.type === 'folder'));
-        
+        siblings.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        const oldIndex = siblings.findIndex(n => movingIds.includes(n.id));
+        const targetIndex = siblings.findIndex(n => n.id === overNode.id);
+
         const remainingSiblings = siblings.filter(n => !movingIds.includes(n.id));
         const overIndex = remainingSiblings.findIndex(n => n.id === overNode.id);
-        const newIndex = overIndex === -1 ? 0 : overIndex;
+
+        let insertionIndex = 0;
+        if (overIndex === -1) {
+          insertionIndex = 0;
+        } else if (oldIndex !== -1 && oldIndex < targetIndex) {
+          // Moving DOWN: insert AFTER overNode in remainingSiblings
+          insertionIndex = overIndex + 1;
+        } else {
+          // Moving UP: insert BEFORE overNode in remainingSiblings
+          insertionIndex = overIndex;
+        }
         
         const newOrderList = [...remainingSiblings];
         const nodesToMove = siblings.filter(n => movingIds.includes(n.id));
         
-        newOrderList.splice(newIndex, 0, ...nodesToMove);
+        newOrderList.splice(insertionIndex, 0, ...nodesToMove);
         
         const updates = newOrderList.map((node, index) => ({
             ...node,

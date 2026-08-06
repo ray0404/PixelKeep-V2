@@ -176,15 +176,21 @@ export const useFolderStore = create<FolderState>((set, get) => ({
 
   reorderNodes: async (reorderedNodes) => {
     const { password } = useAuthStore.getState();
+    const { disableTaskEncryption } = useSettingsStore.getState();
     if (!password) return;
 
+    // Optimistically update local Zustand store state immediately
+    const currentNodes = get().nodes;
+    const reorderedMap = new Map(reorderedNodes.map((n, i) => [n.id, { ...n, order: i }]));
+    const updatedNodes = currentNodes.map(node => reorderedMap.get(node.id) || node);
+    updatedNodes.sort((a, b) => (a.order || 0) - (b.order || 0));
+    set({ nodes: updatedNodes });
+
     for (let i = 0; i < reorderedNodes.length; i++) {
-        const node = reorderedNodes[i];
-        node.order = i; 
-        const encryptedUpdatedNode = encrypt(node, password);
-        await db.fs_nodes.put({ id: node.id, data: encryptedUpdatedNode });
+        const node = { ...reorderedNodes[i], order: i };
+        const dataToStore = (disableTaskEncryption && (node.type === 'task')) ? JSON.stringify(node) : encrypt(node, password);
+        await db.fs_nodes.put({ id: node.id, data: dataToStore });
     }
-    await get().fetchNodes();
   },
 
   renameNode: async (id, newName) => {

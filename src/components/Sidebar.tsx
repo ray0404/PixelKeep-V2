@@ -50,6 +50,20 @@ export const Sidebar: React.FC = () => {
   const [nodeToRename, setNodeToRename] = useState<string | null>(null);
 
   const [activeDragItem, setActiveDragItem] = useState<FSNode | null>(null);
+  const [collapsedFolderIds, setCollapsedFolderIds] = useState<Set<string>>(new Set());
+
+  const toggleFolderCollapse = (folderId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setCollapsedFolderIds(prev => {
+      const next = new Set(prev);
+      if (next.has(folderId)) {
+        next.delete(folderId);
+      } else {
+        next.add(folderId);
+      }
+      return next;
+    });
+  };
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -60,7 +74,7 @@ export const Sidebar: React.FC = () => {
     useSensor(TouchSensor, {
       activationConstraint: {
         delay: 250,
-        tolerance: 5,
+        tolerance: 10,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -85,7 +99,14 @@ export const Sidebar: React.FC = () => {
     setIsNewFolderModalOpen(false);
   };
 
-  const handleStart = (id: string) => {
+  const startPosRef = useRef<{ x: number; y: number } | null>(null);
+
+  const handleStart = (id: string, e?: React.TouchEvent | React.MouseEvent) => {
+    if (e && 'touches' in e && e.touches.length > 0) {
+      startPosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    } else if (e && 'clientX' in e) {
+      startPosRef.current = { x: (e as React.MouseEvent).clientX, y: (e as React.MouseEvent).clientY };
+    }
     timerRef.current = setTimeout(() => {
       setSelectionMode(true);
       if (!selectedIds.includes(id)) setSelectedIds(prev => [...prev, id]);
@@ -93,11 +114,23 @@ export const Sidebar: React.FC = () => {
     }, 200);
   };
 
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (timerRef.current && startPosRef.current && e.touches.length > 0) {
+      const deltaX = Math.abs(e.touches[0].clientX - startPosRef.current.x);
+      const deltaY = Math.abs(e.touches[0].clientY - startPosRef.current.y);
+      if (deltaX > 8 || deltaY > 8) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+  };
+
   const handleEnd = () => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
+    startPosRef.current = null;
   };
 
   const handleToggle = (id: string) => {
@@ -182,15 +215,29 @@ export const Sidebar: React.FC = () => {
       // Otherwise, handle reordering (same level)
       const destinationParentId = overNode.parentId;
       const siblings = nodes.filter(n => n.parentId === destinationParentId);
-      
+      siblings.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+      const oldIndex = siblings.findIndex(n => movingIds.includes(n.id));
+      const targetIndex = siblings.findIndex(n => n.id === over.id);
+
       const remainingSiblings = siblings.filter(n => !movingIds.includes(n.id));
       const overIndex = remainingSiblings.findIndex(n => n.id === over.id);
       
-      const newIndex = overIndex === -1 ? 0 : overIndex;
+      let insertionIndex = 0;
+      if (overIndex === -1) {
+        insertionIndex = 0;
+      } else if (oldIndex !== -1 && oldIndex < targetIndex) {
+        // Moving DOWN: insert AFTER overNode in remainingSiblings
+        insertionIndex = overIndex + 1;
+      } else {
+        // Moving UP: insert BEFORE overNode in remainingSiblings
+        insertionIndex = overIndex;
+      }
+
       const newOrderList = [...remainingSiblings];
       const nodesToMove = nodes.filter(n => movingIds.includes(n.id));
       
-      newOrderList.splice(newIndex, 0, ...nodesToMove);
+      newOrderList.splice(insertionIndex, 0, ...nodesToMove);
       
       const updates = newOrderList.map((node, index) => ({
           ...node,
@@ -232,63 +279,88 @@ export const Sidebar: React.FC = () => {
         strategy={verticalListSortingStrategy}
       >
         <div className={cn("space-y-1", depth > 0 && "ml-4 border-l-2 border-border-light/20 pl-2")}>
-          {children.map(node => (
-            <SortableFolderItem key={node.id} id={node.id}>
-              <div 
-                className={cn(
-                  "group flex items-center justify-between p-1 hover:bg-primary/10 cursor-pointer rounded select-none",
-                  currentFolderId === node.id && "bg-primary/20",
-                  selectedIds.includes(node.id) && "bg-secondary/20 border border-secondary/50"
-                )}
-                onTouchStart={() => handleStart(node.id)}
-                onTouchEnd={handleEnd}
-                onMouseDown={() => handleStart(node.id)}
-                onMouseUp={handleEnd}
-                onMouseLeave={handleEnd}
-                onClick={(e) => {
-                  if (selectionMode) {
-                    e.stopPropagation();
-                    handleToggle(node.id);
-                  } else {
-                    if (node.type === 'folder') {
-                      setCurrentFolderId(node.id);
-                      navigate(isTasksView ? '/tasks' : '/notes');
-                    } else if (node.type === 'note') {
-                      navigate(`/notes/view/${node.itemRefId}`);
-                      setSidebarOpen(false);
-                    } else if (node.type === 'task') {
-                      navigate(`/tasks/edit/${node.itemRefId}`);
-                      setSidebarOpen(false);
-                    }
-                  }
-                }}
-              >
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  {selectionMode && (
-                     <div className="pointer-events-none">
-                       <PixelCheckbox checked={selectedIds.includes(node.id)} onChange={() => {}} />
-                     </div>
+          {children.map(node => {
+            const isCollapsed = collapsedFolderIds.has(node.id);
+            const childNodes = nodes.filter(n => n.parentId === node.id);
+            const hasChildren = childNodes.length > 0;
+
+            return (
+              <SortableFolderItem key={node.id} id={node.id}>
+                <div 
+                  className={cn(
+                    "group flex items-center justify-between p-1 hover:bg-primary/10 cursor-pointer rounded select-none",
+                    currentFolderId === node.id && "bg-primary/20",
+                    selectedIds.includes(node.id) && "bg-secondary/20 border border-secondary/50"
                   )}
-                  <span className="material-symbols-outlined text-sm">
-                    {node.type === 'folder' ? 'folder' : node.type === 'note' ? 'description' : 'task_alt'}
-                  </span>
-                  <span className="text-[10px] font-bold truncate">{node.name}</span>
-                </div>
-                {!selectionMode && (
-                  <button 
-                    onClick={(e) => {
+                  onTouchStart={(e) => handleStart(node.id, e)}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleEnd}
+                  onTouchCancel={handleEnd}
+                  onMouseDown={(e) => handleStart(node.id, e)}
+                  onMouseUp={handleEnd}
+                  onMouseLeave={handleEnd}
+                  onClick={(e) => {
+                    if (selectionMode) {
                       e.stopPropagation();
-                      setDeleteConfirm({ isOpen: true, id: node.id, name: node.name });
-                    }}
-                    className="opacity-0 group-hover:opacity-100 text-danger hover:text-primary transition-opacity"
-                  >
-                    <span className="material-symbols-outlined text-xs">delete</span>
-                  </button>
-                )}
-              </div>
-              {node.type === 'folder' && renderScaffolding(node.id, depth + 1)}
-            </SortableFolderItem>
-          ))}
+                      handleToggle(node.id);
+                    } else {
+                      if (node.type === 'folder') {
+                        setCurrentFolderId(node.id);
+                        navigate(isTasksView ? '/tasks' : '/notes');
+                      } else if (node.type === 'note') {
+                        navigate(`/notes/view/${node.itemRefId}`);
+                        setSidebarOpen(false);
+                      } else if (node.type === 'task') {
+                        navigate(`/tasks/edit/${node.itemRefId}`);
+                        setSidebarOpen(false);
+                      }
+                    }
+                  }}
+                >
+                  <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                    {selectionMode && (
+                       <div className="pointer-events-none">
+                         <PixelCheckbox checked={selectedIds.includes(node.id)} onChange={() => {}} />
+                       </div>
+                    )}
+                    {node.type === 'folder' && (
+                      <button
+                        type="button"
+                        onClick={(e) => toggleFolderCollapse(node.id, e)}
+                        className="p-0.5 text-text-light/70 hover:text-primary transition-colors flex items-center justify-center rounded hover:bg-primary/20"
+                        title={isCollapsed ? "Expand directory" : "Collapse directory"}
+                      >
+                        <span className="material-symbols-outlined text-xs">
+                          {isCollapsed ? 'chevron_right' : 'expand_more'}
+                        </span>
+                      </button>
+                    )}
+                    <span className="material-symbols-outlined text-sm text-secondary">
+                      {node.type === 'folder' ? (isCollapsed ? 'folder' : 'folder_open') : node.type === 'note' ? 'description' : 'task_alt'}
+                    </span>
+                    <span className="text-[10px] font-bold truncate">{node.name}</span>
+                    {node.type === 'folder' && hasChildren && (
+                      <span className="text-[8px] text-text-light/50 font-normal ml-0.5">
+                        ({childNodes.length})
+                      </span>
+                    )}
+                  </div>
+                  {!selectionMode && (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteConfirm({ isOpen: true, id: node.id, name: node.name });
+                      }}
+                      className="opacity-0 group-hover:opacity-100 text-danger hover:text-primary transition-opacity"
+                    >
+                      <span className="material-symbols-outlined text-xs">delete</span>
+                    </button>
+                  )}
+                </div>
+                {node.type === 'folder' && !isCollapsed && renderScaffolding(node.id, depth + 1)}
+              </SortableFolderItem>
+            );
+          })}
         </div>
       </SortableContext>
     );
