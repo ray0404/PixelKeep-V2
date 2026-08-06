@@ -22,6 +22,7 @@ interface SettingsState {
   includeTitleInCopy: boolean;
   disableTaskEncryption: boolean;
   hasSeenEncryptionPrompt: boolean;
+  hasSeenAmberConsoleNotice: boolean;
   defaultAlarmSound: { data: string; name: string } | null;
   enableMarkdownFeature: boolean;
   enableLineNumbersFeature: boolean;
@@ -32,7 +33,7 @@ interface SettingsState {
 export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
-      theme: 'Standard',
+      theme: 'AmberConsole',
       amberGas: 'neon',
       amberBloom: true,
       amberCrt: false,
@@ -52,6 +53,7 @@ export const useSettingsStore = create<SettingsState>()(
       includeTitleInCopy: true,
       disableTaskEncryption: true,
       hasSeenEncryptionPrompt: false,
+      hasSeenAmberConsoleNotice: false,
       defaultAlarmSound: null,
       enableMarkdownFeature: false,
       enableLineNumbersFeature: false,

@@ -140,7 +140,30 @@ export const Layout: React.FC<LayoutProps> = ({ children, title }) => {
           <span className="text-[10px] font-medium uppercase">Quest Log</span>
         </button>
       </nav>
-      
+
+      <PixelModal 
+        isOpen={!settings.hasSeenAmberConsoleNotice} 
+        onClose={() => settings.setSetting('hasSeenAmberConsoleNotice', true)}
+        title="SYSTEM NOTICE"
+      >
+        <div className="space-y-4">
+          <h1 className="text-base font-bold text-primary border-b border-border-light pb-2">
+            Introducing the new <em>Amber Console</em>!
+          </h1>
+          <p className="text-xs text-text-light leading-relaxed">
+            The new <em>Amber Console</em> UI is here, and has been implemented as the new default UI/style. Legacy UIs are still available in the settings menu.
+          </p>
+          <div className="pt-2">
+            <PixelButton 
+              onClick={() => settings.setSetting('hasSeenAmberConsoleNotice', true)} 
+              className="w-full h-12 text-xs uppercase"
+            >
+              ACKNOWLEDGE
+            </PixelButton>
+          </div>
+        </div>
+      </PixelModal>
+
       <PixelToast />
     </div>
   );

@@ -116,15 +116,15 @@ export const NoteItem: React.FC<NoteItemProps> = ({
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-end gap-2 border-t-2 border-dashed border-border-light pt-2">
-        <PixelButton variant="surface" onClick={(e) => { e.stopPropagation(); onEdit(note.id); }}>
-          <span className="material-symbols-outlined">edit</span>
+      <div className="note-card-actions flex items-center justify-end gap-2 border-t-2 border-dashed border-border-light pt-2">
+        <PixelButton variant="ghost" className="ac-note-action-btn" onClick={(e) => { e.stopPropagation(); onEdit(note.id); }}>
+          <span className="material-symbols-outlined text-lg">edit</span>
         </PixelButton>
-        <PixelButton variant="surface" onClick={handleCopy}>
-          <span className="material-symbols-outlined">content_copy</span>
+        <PixelButton variant="ghost" className="ac-note-action-btn" onClick={handleCopy}>
+          <span className="material-symbols-outlined text-lg">content_copy</span>
         </PixelButton>
-        <PixelButton variant="surface" className="bg-danger" onClick={(e) => { e.stopPropagation(); onDelete(note.id, nodeId); }}>
-          <span className="material-symbols-outlined">delete</span>
+        <PixelButton variant="ghost" className="ac-note-action-btn ac-danger" onClick={(e) => { e.stopPropagation(); onDelete(note.id, nodeId); }}>
+          <span className="material-symbols-outlined text-lg">delete</span>
         </PixelButton>
       </div>
     </div>

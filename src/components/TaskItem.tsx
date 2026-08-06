@@ -126,30 +126,18 @@ export const TaskItem: React.FC<TaskItemProps> = React.memo(({ task, nodeId, onT
 
         </div>
 
-        <div className="flex items-center gap-2">
-
+        <div className="task-card-actions flex items-center gap-2">
           {task.notes && (
-
-            <PixelButton variant="surface" onClick={() => setShowNotes(!showNotes)}>
-
-              <span className="material-symbols-outlined">{showNotes ? 'expand_less' : 'expand_more'}</span>
-
+            <PixelButton variant="ghost" className="ac-task-action-btn" onClick={() => setShowNotes(!showNotes)}>
+              <span className="material-symbols-outlined text-lg">{showNotes ? 'expand_less' : 'expand_more'}</span>
             </PixelButton>
-
           )}
-
-          <PixelButton variant="surface" onClick={() => onEdit(task.id)}>
-
-            <span className="material-symbols-outlined">edit</span>
-
+          <PixelButton variant="ghost" className="ac-task-action-btn" onClick={() => onEdit(task.id)}>
+            <span className="material-symbols-outlined text-lg">edit</span>
           </PixelButton>
-
-          <PixelButton variant="surface" className="bg-danger" onClick={() => onDelete(task.id, nodeId)}>
-
-            <span className="material-symbols-outlined">delete</span>
-
+          <PixelButton variant="ghost" className="ac-task-action-btn ac-danger" onClick={() => onDelete(task.id, nodeId)}>
+            <span className="material-symbols-outlined text-lg">delete</span>
           </PixelButton>
-
         </div>
 
       </div>

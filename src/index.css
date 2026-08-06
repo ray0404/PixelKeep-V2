@@ -284,6 +284,43 @@ body.theme-amber-console .pixel-button-surface:active {
   box-shadow: none !important;
 }
 
+/* Unboxed Note & Task Entry Option Buttons in Amber Console mode */
+body.theme-amber-console .ac-note-action-btn,
+body.theme-amber-console .ac-task-action-btn {
+  border: none !important;
+  background-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--ink-bright) !important;
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  transition: color 0.15s ease, text-shadow 0.15s ease, background-color 0.15s ease !important;
+}
+
+body.theme-amber-console .ac-note-action-btn:hover,
+body.theme-amber-console .ac-task-action-btn:hover {
+  background-color: rgba(var(--gas-2), 0.15) !important;
+  color: var(--ink-bright) !important;
+  text-shadow: var(--glow-text) !important;
+}
+
+body.theme-amber-console .ac-note-action-btn.ac-danger,
+body.theme-amber-console .ac-task-action-btn.ac-danger {
+  background-color: transparent !important;
+  background: transparent !important;
+  color: var(--amber-90) !important;
+}
+
+body.theme-amber-console .ac-note-action-btn.ac-danger:hover,
+body.theme-amber-console .ac-task-action-btn.ac-danger:hover {
+  background-color: rgba(var(--gas-2), 0.25) !important;
+  color: var(--ink-bright) !important;
+  text-shadow: var(--glow-text) !important;
+}
+
 /* Floating Action Buttons (FABs - Bottom Right 2 Circles -> Amber Terminal Action Keys) */
 body.theme-amber-console .fixed.bottom-24.right-6 {
   z-index: 30 !important;
