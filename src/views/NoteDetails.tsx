@@ -14,6 +14,11 @@ import { parsePTA, PTAParseResult } from '../utils/ptaParser';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 
+const DOMPURIFY_CONFIG = {
+  ADD_TAGS: ['iframe'],
+  ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling']
+};
+
 type ContentSegment =
   | { type: 'html'; html: string }
   | { type: 'pta'; result: PTAParseResult };
@@ -34,7 +39,8 @@ function buildSegments(plainText: string, markdownMode: boolean): ContentSegment
     if (match.index > lastIndex) {
       const chunk = plainText.slice(lastIndex, match.index);
       const html = DOMPurify.sanitize(
-        marked.parse(chunk, { breaks: true, gfm: true }) as string
+        marked.parse(chunk, { breaks: true, gfm: true }) as string,
+        DOMPURIFY_CONFIG
       );
       segments.push({ type: 'html', html });
     }
@@ -45,7 +51,8 @@ function buildSegments(plainText: string, markdownMode: boolean): ContentSegment
   if (lastIndex < plainText.length) {
     const chunk = plainText.slice(lastIndex);
     const html = DOMPurify.sanitize(
-      marked.parse(chunk, { breaks: true, gfm: true }) as string
+      marked.parse(chunk, { breaks: true, gfm: true }) as string,
+      DOMPURIFY_CONFIG
     );
     segments.push({ type: 'html', html });
   }
@@ -55,7 +62,8 @@ function buildSegments(plainText: string, markdownMode: boolean): ContentSegment
     : [{
         type: 'html',
         html: DOMPurify.sanitize(
-          marked.parse(plainText, { breaks: true, gfm: true }) as string
+          marked.parse(plainText, { breaks: true, gfm: true }) as string,
+          DOMPURIFY_CONFIG
         )
       }];
 }

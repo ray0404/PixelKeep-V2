@@ -81,6 +81,7 @@ body {
 .markdown-body li p { @apply mb-0; }
 .markdown-body hr { @apply border-t-2 border-dashed border-border-light my-6; }
 .markdown-body img { @apply w-full h-auto my-4 shadow-pixel-container border-4 border-border-dark bg-surface; }
+.markdown-body iframe { @apply w-full max-w-full my-4 shadow-pixel-container border-4 border-border-dark bg-surface aspect-video; }
 .markdown-body blockquote { @apply border-l-4 border-primary pl-4 py-1 italic my-4; background-color: rgba(74, 222, 128, 0.05); }
 .markdown-body code { @apply px-1 rounded-sm font-mono text-[0.9em]; background-color: rgba(30, 27, 75, 0.2); }
 .markdown-body pre { @apply p-4 font-mono overflow-x-auto mb-4 shadow-pixel-container-inset; background-color: rgba(30, 27, 75, 0.2); }
@@ -120,6 +121,12 @@ body.theme-pixel .pixel-textarea {
 body.theme-pixel .shadow-pixel-container {
   box-shadow: 8px 8px 0px 0px #000 !important;
   border: 4px solid #000 !important;
+}
+
+body.theme-pixel .markdown-body iframe {
+  border: 4px solid #000 !important;
+  box-shadow: 8px 8px 0px 0px #000 !important;
+  background-color: #1e1b4b !important;
 }
 
 body.theme-pixel .border-border-light,
@@ -439,6 +446,12 @@ body.theme-amber-console .shadow-pixel-container {
   box-shadow: var(--glow-box) !important;
   border: 2px solid var(--stroke) !important;
   background-color: var(--screen) !important;
+}
+
+body.theme-amber-console .markdown-body iframe {
+  border: 2px solid var(--stroke) !important;
+  box-shadow: var(--glow-box) !important;
+  background-color: var(--screen-well) !important;
 }
 
 body.theme-amber-console .border-border-light,
