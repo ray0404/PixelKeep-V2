@@ -64,7 +64,7 @@ PixelKeep is a secure, local-first Progressive Web App (PWA) for managing encryp
     npm run dev
     ```
 
-4.  Open `http://localhost:5173` in your browser.
+4.  Open `http://localhost:5000` in your browser.
 
 ## 🏗 Build & Deployment
 
