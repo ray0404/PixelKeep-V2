@@ -218,4 +218,34 @@ describe('NoteDetails', () => {
 
     expect(scrollIntoViewMock).toHaveBeenCalled();
   });
+
+  it('renders embedded YouTube iframe inside note', async () => {
+    (useNoteStore as any).mockReturnValue({
+      notes: [{
+        id: 1,
+        title: 'Video Note',
+        content: '<iframe width="560" height="315" src="https://www.youtube.com/embed/YJ_e-dsMruc?si=fKqgTiOeYVvoJJJf" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>',
+        isMarkdownMode: true,
+        tags: [],
+        updatedAt: new Date().toISOString()
+      }],
+      setSearchQuery: vi.fn(),
+      getAsset: vi.fn()
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/notes/1']}>
+        <Routes>
+          <Route path="/notes/:id" element={<NoteDetails />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    const iframe = document.querySelector('iframe');
+    expect(iframe).toBeInTheDocument();
+    expect(iframe).toHaveAttribute('src', 'https://www.youtube.com/embed/YJ_e-dsMruc?si=fKqgTiOeYVvoJJJf');
+    expect(iframe).toHaveAttribute('title', 'YouTube video player');
+    expect(iframe).toHaveAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+    expect(iframe).toHaveAttribute('allowfullscreen');
+  });
 });

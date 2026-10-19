@@ -11,7 +11,8 @@ import { PTASummary } from '../components/PTASummary';
 import { Note } from '../db/db';
 import { htmlToPlainText } from '../utils/ui';
 import { parsePTA, PTAParseResult } from '../utils/ptaParser';
-import { renderMarkdown } from '../utils/markdown';
+import { renderMarkdown, DOMPURIFY_CONFIG } from '../utils/markdown';
+import DOMPurify from 'dompurify';
 
 type ContentSegment =
   | { type: 'html'; html: string }
@@ -21,7 +22,12 @@ const PTA_BLOCK_RE = /```(?:ledger|pta)\n([\s\S]*?)```/g;
 
 function buildSegments(plainText: string, markdownMode: boolean): ContentSegment[] {
   if (!markdownMode) {
-    return [{ type: 'html', html: plainText }];
+    let html = plainText;
+    if (/&lt;iframe/i.test(html)) {
+      html = html.replace(/&lt;iframe([\s\S]*?)&gt;([\s\S]*?)&lt;\/iframe&gt;/gi, '<iframe$1>$2</iframe>');
+    }
+    const safeHtml = DOMPurify.sanitize(html, DOMPURIFY_CONFIG);
+    return [{ type: 'html', html: safeHtml }];
   }
 
   const segments: ContentSegment[] = [];

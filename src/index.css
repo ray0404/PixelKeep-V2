@@ -83,6 +83,7 @@ body {
 .markdown-body img { @apply w-full h-auto my-4 shadow-pixel-container border-4 border-border-dark bg-surface; }
 .markdown-body picture { @apply block w-full my-4; }
 .markdown-body picture img { @apply w-full h-auto shadow-pixel-container border-4 border-border-dark bg-surface my-0; }
+.note-content-display iframe,
 .markdown-body iframe { @apply w-full max-w-full my-4 shadow-pixel-container border-4 border-border-dark bg-surface aspect-video; }
 .markdown-body blockquote { @apply border-l-4 border-primary pl-4 py-1 italic my-4; background-color: rgba(74, 222, 128, 0.05); }
 
@@ -504,6 +505,7 @@ body.theme-amber-console .shadow-pixel-container {
   background-color: var(--screen) !important;
 }
 
+body.theme-amber-console .note-content-display iframe,
 body.theme-amber-console .markdown-body iframe {
   border: 2px solid var(--stroke) !important;
   box-shadow: var(--glow-box) !important;

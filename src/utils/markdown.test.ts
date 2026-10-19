@@ -25,6 +25,13 @@ describe('htmlToPlainText', () => {
     const raw = 'Line 1\nLine 2\n\nLine 3';
     expect(htmlToPlainText(raw)).toBe(raw);
   });
+
+  it('preserves embedded <iframe> tags without stripping them', () => {
+    const rawIframe = '<div>Video:</div><div><iframe width="560" height="315" src="https://www.youtube.com/embed/YJ_e-dsMruc?si=fKqgTiOeYVvoJJJf" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>';
+    const text = htmlToPlainText(rawIframe);
+    expect(text).toContain('<iframe width="560" height="315" src="https://www.youtube.com/embed/YJ_e-dsMruc?si=fKqgTiOeYVvoJJJf"');
+    expect(text).toContain('allowfullscreen');
+  });
 });
 
 describe('slugifyHeading', () => {
@@ -67,6 +74,21 @@ describe('renderMarkdown', () => {
     expect(rendered).toContain('<picture>');
     expect(rendered).toContain('<source srcset="logo.webp"');
     expect(rendered).toContain('<img src="logo.png" alt="PixelKeep Logo"');
+  });
+
+  it('renders embedded YouTube <iframe> with full attributes intact', () => {
+    const input = '<iframe width="560" height="315" src="https://www.youtube.com/embed/YJ_e-dsMruc?si=fKqgTiOeYVvoJJJf" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+    const rendered = renderMarkdown(input);
+
+    expect(rendered).toContain('<iframe');
+    expect(rendered).toContain('width="560"');
+    expect(rendered).toContain('height="315"');
+    expect(rendered).toContain('src="https://www.youtube.com/embed/YJ_e-dsMruc?si=fKqgTiOeYVvoJJJf"');
+    expect(rendered).toContain('title="YouTube video player"');
+    expect(rendered).toContain('frameborder="0"');
+    expect(rendered).toContain('allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"');
+    expect(rendered).toContain('referrerpolicy="strict-origin-when-cross-origin"');
+    expect(rendered).toContain('allowfullscreen');
   });
 
   it('renders language-specific syntax highlighted codeblocks with copy button', () => {

@@ -3,7 +3,7 @@ import hljs from 'highlight.js';
 import DOMPurify from 'dompurify';
 
 export const DOMPURIFY_CONFIG = {
-  ADD_TAGS: ['iframe', 'picture', 'source', 'button'],
+  ADD_TAGS: ['iframe', 'picture', 'source', 'button', 'video', 'audio'],
   ADD_ATTR: [
     'allow',
     'allowfullscreen',
@@ -16,7 +16,20 @@ export const DOMPURIFY_CONFIG = {
     'loading',
     'data-code',
     'target',
-    'id'
+    'id',
+    'width',
+    'height',
+    'referrerpolicy',
+    'title',
+    'src',
+    'alt',
+    'controls',
+    'autoplay',
+    'loop',
+    'muted',
+    'poster',
+    'sandbox',
+    'name'
   ]
 };
 
