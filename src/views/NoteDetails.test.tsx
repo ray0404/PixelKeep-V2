@@ -248,4 +248,34 @@ describe('NoteDetails', () => {
     expect(iframe).toHaveAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
     expect(iframe).toHaveAttribute('allowfullscreen');
   });
+
+  it('reverts iframe to literal text and does not render iframe element when markdown mode is OFF', async () => {
+    (useNoteStore as any).mockReturnValue({
+      notes: [{
+        id: 1,
+        title: 'Video Note Raw',
+        content: '<iframe width="560" height="315" src="https://www.youtube.com/embed/YJ_e-dsMruc" title="YouTube video player"></iframe>',
+        isMarkdownMode: false,
+        tags: [],
+        updatedAt: new Date().toISOString()
+      }],
+      setSearchQuery: vi.fn(),
+      getAsset: vi.fn()
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/notes/1']}>
+        <Routes>
+          <Route path="/notes/:id" element={<NoteDetails />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    // No <iframe> element should be rendered
+    const iframe = document.querySelector('iframe');
+    expect(iframe).toBeNull();
+
+    // Literal text representation should be visible
+    expect(screen.getByText(/<iframe width="560" height="315" src="https:\/\/www.youtube.com\/embed\/YJ_e-dsMruc"/i)).toBeInTheDocument();
+  });
 });

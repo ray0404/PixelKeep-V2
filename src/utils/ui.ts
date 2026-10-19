@@ -7,10 +7,6 @@ export function cn(...inputs: ClassValue[]) {
 
 export function htmlToPlainText(html: string): string {
   if (!html) return '';
-  // If the string contains no HTML tags, preserve it literally
-  if (!/<[a-z][\s\S]*>/i.test(html)) {
-    return html;
-  }
   let s = html;
 
   // Preserve embedded media elements before tag stripping:

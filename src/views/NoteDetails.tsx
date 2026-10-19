@@ -11,8 +11,7 @@ import { PTASummary } from '../components/PTASummary';
 import { Note } from '../db/db';
 import { htmlToPlainText } from '../utils/ui';
 import { parsePTA, PTAParseResult } from '../utils/ptaParser';
-import { renderMarkdown, DOMPURIFY_CONFIG } from '../utils/markdown';
-import DOMPurify from 'dompurify';
+import { renderMarkdown } from '../utils/markdown';
 
 type ContentSegment =
   | { type: 'html'; html: string }
@@ -22,12 +21,13 @@ const PTA_BLOCK_RE = /```(?:ledger|pta)\n([\s\S]*?)```/g;
 
 function buildSegments(plainText: string, markdownMode: boolean): ContentSegment[] {
   if (!markdownMode) {
-    let html = plainText;
-    if (/&lt;iframe/i.test(html)) {
-      html = html.replace(/&lt;iframe([\s\S]*?)&gt;([\s\S]*?)&lt;\/iframe&gt;/gi, '<iframe$1>$2</iframe>');
-    }
-    const safeHtml = DOMPurify.sanitize(html, DOMPURIFY_CONFIG);
-    return [{ type: 'html', html: safeHtml }];
+    // When markdown mode is OFF: display as literal text (reverting iframes/HTML to readable text)
+    const text = htmlToPlainText(plainText);
+    const escapedText = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    return [{ type: 'html', html: escapedText }];
   }
 
   const segments: ContentSegment[] = [];
