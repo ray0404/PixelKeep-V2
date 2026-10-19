@@ -121,4 +121,101 @@ describe('NoteDetails', () => {
     expect(await screen.findByText(/DECIPHERING ECHO/i)).toBeInTheDocument();
     expect(await screen.findByText(/Reading.../i)).toBeInTheDocument();
   });
+
+  it('copies note contents without extra newlines between lines', async () => {
+    const writeTextMock = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', {
+      clipboard: { writeText: writeTextMock }
+    });
+    vi.stubGlobal('alert', vi.fn());
+
+    (useNoteStore as any).mockReturnValue({
+      notes: [{
+        id: 1,
+        title: 'Multi Line Note',
+        content: '<div>Line 1</div><div>Line 2</div><div>Line 3</div>',
+        tags: [],
+        updatedAt: new Date().toISOString()
+      }],
+      setSearchQuery: vi.fn(),
+      getAsset: vi.fn()
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/notes/1']}>
+        <Routes>
+          <Route path="/notes/:id" element={<NoteDetails />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    const copyBtn = screen.getByText('content_copy').closest('button')!;
+    fireEvent.click(copyBtn);
+
+    expect(writeTextMock).toHaveBeenCalledWith('Multi Line Note\n\nLine 1\nLine 2\nLine 3');
+  });
+
+  it('handles codeblock copy button click', async () => {
+    const writeTextMock = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', {
+      clipboard: { writeText: writeTextMock }
+    });
+
+    (useNoteStore as any).mockReturnValue({
+      notes: [{
+        id: 1,
+        title: 'Code Note',
+        content: '```js\nconsole.log("hello");\n```',
+        isMarkdownMode: true,
+        tags: [],
+        updatedAt: new Date().toISOString()
+      }],
+      setSearchQuery: vi.fn(),
+      getAsset: vi.fn()
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/notes/1']}>
+        <Routes>
+          <Route path="/notes/:id" element={<NoteDetails />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    const codeCopyBtn = await screen.findByTitle('Copy code');
+    fireEvent.click(codeCopyBtn);
+
+    expect(writeTextMock).toHaveBeenCalledWith('console.log("hello");');
+  });
+
+  it('smoothly scrolls to heading when TOC link is clicked', async () => {
+    const scrollIntoViewMock = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoViewMock;
+
+    (useNoteStore as any).mockReturnValue({
+      notes: [{
+        id: 1,
+        title: 'TOC Note',
+        content: '# Table of Contents\n\n[Section One](#section-one)\n\n## Section One',
+        isMarkdownMode: true,
+        tags: [],
+        updatedAt: new Date().toISOString()
+      }],
+      setSearchQuery: vi.fn(),
+      getAsset: vi.fn()
+    });
+
+    render(
+      <MemoryRouter initialEntries={['/notes/1']}>
+        <Routes>
+          <Route path="/notes/:id" element={<NoteDetails />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    const link = await screen.findByRole('link', { name: 'Section One' });
+    fireEvent.click(link);
+
+    expect(scrollIntoViewMock).toHaveBeenCalled();
+  });
 });

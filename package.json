@@ -24,6 +24,7 @@
     "dexie-react-hooks": "^1.1.7",
     "dompurify": "^3.3.1",
     "eruda": "^3.4.3",
+    "highlight.js": "^11.12.0",
     "jszip": "^3.10.1",
     "lucide-react": "^0.363.0",
     "marked": "^17.0.1",

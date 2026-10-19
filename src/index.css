@@ -81,11 +81,67 @@ body {
 .markdown-body li p { @apply mb-0; }
 .markdown-body hr { @apply border-t-2 border-dashed border-border-light my-6; }
 .markdown-body img { @apply w-full h-auto my-4 shadow-pixel-container border-4 border-border-dark bg-surface; }
+.markdown-body picture { @apply block w-full my-4; }
+.markdown-body picture img { @apply w-full h-auto shadow-pixel-container border-4 border-border-dark bg-surface my-0; }
 .markdown-body iframe { @apply w-full max-w-full my-4 shadow-pixel-container border-4 border-border-dark bg-surface aspect-video; }
 .markdown-body blockquote { @apply border-l-4 border-primary pl-4 py-1 italic my-4; background-color: rgba(74, 222, 128, 0.05); }
-.markdown-body code { @apply px-1 rounded-sm font-mono text-[0.9em]; background-color: rgba(30, 27, 75, 0.2); }
-.markdown-body pre { @apply p-4 font-mono overflow-x-auto mb-4 shadow-pixel-container-inset; background-color: rgba(30, 27, 75, 0.2); }
-.markdown-body pre code { @apply bg-transparent p-0; }
+
+/* Inline Code: high-contrast with subtle shaded backdrop */
+.markdown-body :not(pre) > code {
+  @apply px-1.5 py-0.5 rounded-none font-mono text-[0.9em] border;
+  background-color: rgba(30, 27, 75, 0.6);
+  border-color: rgba(79, 70, 229, 0.4);
+  color: #4ade80;
+}
+
+/* Code Blocks: sleek retro layout, no purple outline, tight readable line spacing */
+.markdown-body .code-block-wrapper {
+  @apply my-3 relative overflow-hidden;
+  border: 2px solid #312e81;
+  background-color: #0f0c24;
+}
+
+.markdown-body .code-block-header {
+  @apply flex items-center justify-between px-3 py-1 font-mono text-[10px];
+  background-color: #1e1b4b;
+  border-bottom: 2px solid #312e81;
+  color: #a5b4fc;
+}
+
+.markdown-body .code-copy-btn {
+  @apply flex items-center gap-1 px-1.5 py-0.5 text-[10px] uppercase font-mono cursor-pointer transition-colors border;
+  border-color: #4ade80;
+  color: #4ade80;
+  background-color: rgba(74, 222, 128, 0.1);
+}
+
+.markdown-body .code-copy-btn:hover {
+  background-color: rgba(74, 222, 128, 0.25);
+  color: #f0fdf4;
+}
+
+.markdown-body pre {
+  @apply p-3 font-mono overflow-x-auto m-0;
+  background-color: transparent;
+  line-height: 1.35;
+}
+
+.markdown-body pre code {
+  @apply bg-transparent p-0 font-mono text-[0.85rem] block;
+  line-height: 1.35;
+  border: none;
+}
+
+/* Default Syntax Highlighting Colors */
+.hljs-keyword, .hljs-selector-tag, .hljs-built_in { color: #4ade80; font-weight: bold; }
+.hljs-string, .hljs-title, .hljs-section, .hljs-attribute { color: #fbbf24; }
+.hljs-comment, .hljs-quote { color: #94a3b8; font-style: italic; }
+.hljs-number, .hljs-literal { color: #f472b6; }
+.hljs-variable, .hljs-template-variable, .hljs-tag { color: #38bdf8; }
+.hljs-function { color: #c084fc; }
+.hljs-type, .hljs-class { color: #67e8f9; font-weight: bold; }
+.hljs-punctuation, .hljs-operator { color: #e2e8f0; }
+
 .markdown-body a { @apply text-secondary underline hover:text-primary transition-colors; }
 
 /* Editor Alignment */
@@ -499,4 +555,111 @@ body.theme-amber-console .fixed.inset-y-0.left-0 {
   border-right: 2px solid var(--stroke) !important;
   box-shadow: var(--glow-box) !important;
   color: var(--ink) !important;
+}
+
+/* Amber Console Markdown Code Blocks & Syntax Highlighting */
+body.theme-amber-console .markdown-body .code-block-wrapper {
+  border: 2px solid var(--stroke) !important;
+  background-color: var(--screen-well) !important;
+  box-shadow: var(--glow-box) !important;
+}
+
+body.theme-amber-console .markdown-body .code-block-header {
+  background-color: var(--screen-raised) !important;
+  border-bottom: 1px solid var(--stroke-dim) !important;
+  color: var(--ink-dim) !important;
+  font-family: var(--font-micro) !important;
+}
+
+body.theme-amber-console .markdown-body .code-block-lang {
+  color: var(--ink-dim) !important;
+  font-family: var(--font-micro) !important;
+  letter-spacing: 0.05em;
+}
+
+body.theme-amber-console .markdown-body .code-copy-btn {
+  border: 1px solid var(--stroke) !important;
+  background-color: var(--screen) !important;
+  color: var(--ink-bright) !important;
+  font-family: var(--font-terminal) !important;
+  box-shadow: 0 0 3px rgba(var(--gas-2), 0.3) !important;
+}
+
+body.theme-amber-console .markdown-body .code-copy-btn:hover {
+  background-color: var(--fill-bright) !important;
+  color: var(--on-fill) !important;
+  box-shadow: var(--glow-text) !important;
+}
+
+body.theme-amber-console .markdown-body pre {
+  background-color: var(--screen-well) !important;
+  box-shadow: none !important;
+  border: none !important;
+  line-height: 1.25 !important;
+}
+
+body.theme-amber-console .markdown-body pre code {
+  font-family: var(--font-terminal) !important;
+  color: var(--ink) !important;
+  line-height: 1.25 !important;
+  font-size: 1rem !important;
+}
+
+/* Amber Console Inline Code */
+body.theme-amber-console .markdown-body :not(pre) > code {
+  background-color: rgba(var(--gas-2), 0.15) !important;
+  border: 1px solid rgba(var(--gas-2), 0.35) !important;
+  color: var(--ink-bright) !important;
+  text-shadow: 0 0 2px rgba(var(--gas-2), 0.5) !important;
+  font-family: var(--font-terminal) !important;
+  padding: 0.1rem 0.35rem !important;
+  font-size: 1.05em !important;
+}
+
+/* Amber Console Syntax Highlighting Tokens */
+body.theme-amber-console .hljs-keyword,
+body.theme-amber-console .hljs-selector-tag,
+body.theme-amber-console .hljs-built_in {
+  color: var(--ink-bright) !important;
+  font-weight: bold !important;
+  text-shadow: var(--glow-text) !important;
+}
+
+body.theme-amber-console .hljs-string,
+body.theme-amber-console .hljs-title,
+body.theme-amber-console .hljs-section,
+body.theme-amber-console .hljs-attribute {
+  color: #ffae1e !important;
+}
+
+body.theme-amber-console .hljs-comment,
+body.theme-amber-console .hljs-quote {
+  color: var(--amber-50) !important;
+  font-style: italic !important;
+}
+
+body.theme-amber-console .hljs-number,
+body.theme-amber-console .hljs-literal {
+  color: #ffd052 !important;
+}
+
+body.theme-amber-console .hljs-variable,
+body.theme-amber-console .hljs-template-variable,
+body.theme-amber-console .hljs-tag {
+  color: var(--amber-100) !important;
+}
+
+body.theme-amber-console .hljs-function {
+  color: var(--ink-bright) !important;
+}
+
+body.theme-amber-console .hljs-type,
+body.theme-amber-console .hljs-class {
+  color: #ffd052 !important;
+  font-weight: bold !important;
+}
+
+body.theme-amber-console .hljs-punctuation,
+body.theme-amber-console .hljs-operator {
+  color: var(--ink-dim) !important;
 }

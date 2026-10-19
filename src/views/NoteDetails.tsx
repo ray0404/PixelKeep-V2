@@ -11,13 +11,7 @@ import { PTASummary } from '../components/PTASummary';
 import { Note } from '../db/db';
 import { htmlToPlainText } from '../utils/ui';
 import { parsePTA, PTAParseResult } from '../utils/ptaParser';
-import { marked } from 'marked';
-import DOMPurify from 'dompurify';
-
-const DOMPURIFY_CONFIG = {
-  ADD_TAGS: ['iframe'],
-  ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling']
-};
+import { renderMarkdown } from '../utils/markdown';
 
 type ContentSegment =
   | { type: 'html'; html: string }
@@ -38,10 +32,7 @@ function buildSegments(plainText: string, markdownMode: boolean): ContentSegment
   while ((match = PTA_BLOCK_RE.exec(plainText)) !== null) {
     if (match.index > lastIndex) {
       const chunk = plainText.slice(lastIndex, match.index);
-      const html = DOMPurify.sanitize(
-        marked.parse(chunk, { breaks: true, gfm: true }) as string,
-        DOMPURIFY_CONFIG
-      );
+      const html = renderMarkdown(chunk);
       segments.push({ type: 'html', html });
     }
     segments.push({ type: 'pta', result: parsePTA(match[1]) });
@@ -50,10 +41,7 @@ function buildSegments(plainText: string, markdownMode: boolean): ContentSegment
 
   if (lastIndex < plainText.length) {
     const chunk = plainText.slice(lastIndex);
-    const html = DOMPurify.sanitize(
-      marked.parse(chunk, { breaks: true, gfm: true }) as string,
-      DOMPURIFY_CONFIG
-    );
+    const html = renderMarkdown(chunk);
     segments.push({ type: 'html', html });
   }
 
@@ -61,10 +49,7 @@ function buildSegments(plainText: string, markdownMode: boolean): ContentSegment
     ? segments
     : [{
         type: 'html',
-        html: DOMPurify.sanitize(
-          marked.parse(plainText, { breaks: true, gfm: true }) as string,
-          DOMPURIFY_CONFIG
-        )
+        html: renderMarkdown(plainText)
       }];
 }
 
@@ -135,6 +120,78 @@ export const NoteDetails: React.FC = () => {
       alert('Copied to clipboard!');
     } catch (err) {
       console.error('Failed to copy:', err);
+    }
+  };
+
+  const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = (e.target as HTMLElement).closest('a, button.code-copy-btn');
+    if (!target) return;
+
+    // Handle Codeblock Copy Button
+    if (target.classList.contains('code-copy-btn')) {
+      e.preventDefault();
+      e.stopPropagation();
+      const btn = target as HTMLButtonElement;
+      const rawCode = decodeURIComponent(btn.getAttribute('data-code') || '');
+      if (rawCode) {
+        navigator.clipboard.writeText(rawCode).then(() => {
+          const label = btn.querySelector('.copy-label');
+          const icon = btn.querySelector('.material-symbols-outlined');
+          const oldLabel = label ? label.textContent : '';
+          const oldIcon = icon ? icon.textContent : '';
+          if (label) label.textContent = 'COPIED!';
+          if (icon) icon.textContent = 'check';
+          setTimeout(() => {
+            if (label) label.textContent = oldLabel || 'COPY';
+            if (icon) icon.textContent = oldIcon || 'content_copy';
+          }, 1500);
+        }).catch(err => {
+          console.error('Failed to copy code block:', err);
+        });
+      }
+      return;
+    }
+
+    // Handle Table of Contents / Hash Links
+    if (target.tagName.toLowerCase() === 'a') {
+      const href = target.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        e.preventDefault();
+        e.stopPropagation();
+        const rawTarget = href.slice(1);
+        const cleanTarget = decodeURIComponent(rawTarget).toLowerCase().trim();
+        const strippedTarget = cleanTarget.replace(/^-+|-+$/g, '');
+
+        let element =
+          document.getElementById(rawTarget) ||
+          document.getElementById(cleanTarget) ||
+          document.getElementById(strippedTarget);
+
+        if (!element) {
+          try {
+            element =
+              document.querySelector(`.note-content-display [id="${CSS.escape(rawTarget)}"]`) ||
+              document.querySelector(`.note-content-display [id="${CSS.escape(cleanTarget)}"]`) ||
+              document.querySelector(`.note-content-display [id="${CSS.escape(strippedTarget)}"]`);
+          } catch {
+            // CSS.escape fallback
+          }
+        }
+
+        if (!element) {
+          // Fallback: match by heading text
+          const headings = Array.from(document.querySelectorAll<HTMLElement>('.note-content-display h1, .note-content-display h2, .note-content-display h3, .note-content-display h4, .note-content-display h5, .note-content-display h6'));
+          element = headings.find(h => {
+            const hText = (h.textContent || '').toLowerCase().trim();
+            const hSlug = hText.replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
+            return hSlug === cleanTarget || hSlug === strippedTarget || hText.includes(strippedTarget);
+          }) || null;
+        }
+
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
     }
   };
 
@@ -247,6 +304,7 @@ export const NoteDetails: React.FC = () => {
       <div
         className={`note-content-display mb-6 text-xs font-normal break-words ${note.isMarkdownMode ? 'markdown-body' : 'whitespace-pre-wrap'}`}
         style={{ color: settings.terminalTextColor || settings.textColor }}
+        onClick={handleContentClick}
       >
         {segments.map((seg, i) =>
           seg.type === 'pta'

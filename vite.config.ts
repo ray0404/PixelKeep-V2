@@ -17,6 +17,9 @@ export default defineConfig({
       filename: 'sw.ts',
       disable: process.env.NODE_ENV === 'development',
       registerType: 'autoUpdate',
+      injectManifest: {
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+      },
       includeAssets: [
         'favicon.ico', 
         'apple-touch-icon.png', 
